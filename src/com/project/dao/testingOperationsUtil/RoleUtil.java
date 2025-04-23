@@ -1,0 +1,45 @@
+package com.project.dao.testingOperationsUtil;
+
+import com.project.dao.impl.RoleImplDao;
+import com.project.entity.RoleEntity;
+
+import java.util.List;
+import java.util.Optional;
+
+public final class RoleUtil {
+    private RoleUtil() {}
+
+    public static void findRoleByIdTest() {
+        Optional<RoleEntity> role = RoleImplDao.getInstance().findById(2);
+        System.out.println(role);
+    }
+
+    public static void findAllRolesTest() {
+        List<RoleEntity> allRoles = RoleImplDao.getInstance().findAll();
+        System.out.println(allRoles);
+    }
+
+    public static void savedRoleTest() {
+        RoleImplDao roleDao = RoleImplDao.getInstance();
+        RoleEntity role = new RoleEntity();
+        role.setRoleName("test5");
+        RoleEntity savedUser = roleDao.save(role);
+        System.out.println(savedUser);
+    }
+
+    public static void updateRoleTest() {
+        RoleImplDao roleDao = RoleImplDao.getInstance();
+        Optional<RoleEntity> maybeRole = roleDao.findById(8);
+        System.out.println(maybeRole);
+        maybeRole.ifPresent(roleEntity -> {
+            roleEntity.setRoleName("гость");
+            roleDao.update(roleEntity);
+        });
+    }
+
+    public static void deleteRoleTest() {
+        RoleImplDao roleDao = RoleImplDao.getInstance();
+        boolean deleteResult = roleDao.delete(11);
+        System.out.println(deleteResult);
+    }
+}

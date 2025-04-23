@@ -1,0 +1,132 @@
+CREATE TABLE users
+(
+    user_id         BIGSERIAL PRIMARY KEY,
+    first_name      VARCHAR(100)       NOT NULL,
+    last_name       VARCHAR(100)       NOT NULL,
+    age             INT                NOT NULL,
+    password        VARCHAR(50) UNIQUE NOT NULL,
+    passport_number VARCHAR(20) UNIQUE NOT NULL,
+    role_id         INT REFERENCES roles (role_id)
+);
+-- DROP TABLE users;
+INSERT INTO users (first_name, last_name, age, password, passport_number, role_id)
+VALUES ('Николай', 'Николаев', 34, '56P9#76a', 'KH1234567', 2),
+       ('Петр', 'Тихонов', 37, '89P9#76b', 'KH1237654', 2),
+       ('Иван', 'Никольский', 28, '56RT?76a', 'KH9874567', 2);
+
+CREATE TABLE contacts
+(
+    contact_id SERIAL PRIMARY KEY,
+    user_id    INT REFERENCES users (user_id) ON DELETE CASCADE,
+    email      VARCHAR(128) UNIQUE NOT NULL,
+    phone      VARCHAR(50) UNIQUE  NOT NULL
+);
+DROP TABLE contacts;
+INSERT INTO contacts (user_id, email, phone)
+VALUES (1, 'NNikoiaev@gmail.com', '+375(25)33-56-23'),
+       (2, 'TihonPetr@mail.ru', '+375(29)78-66-25'),
+       (3, 'NikoVan45@gmail.com', '+375(25)90-55-13');
+
+CREATE TABLE roles
+(
+    role_id   SERIAL PRIMARY KEY,
+    role_name VARCHAR(20) UNIQUE NOT NULL
+);
+INSERT INTO roles (role_name)
+VALUES ('администратор'), ('пользователь');
+
+CREATE TABLE models
+(
+    model_id   SERIAL PRIMARY KEY,
+    model_name VARCHAR(50) NOT NULL
+);
+INSERT INTO models (model_name)
+VALUES ('X5'), ('Corolla'), ('Passat'), ('Focus');
+
+CREATE TABLE brands
+(
+    brand_id   SERIAL PRIMARY KEY,
+    brand_name VARCHAR(50) UNIQUE NOT NULL
+);
+INSERT INTO brands (brand_name)
+VALUES ('BMW'), ('Toyota'), ('Volkswagen'), ('Ford');
+
+CREATE TABLE body_types
+(
+    body_type_id   SERIAL PRIMARY KEY,
+    body_type_name VARCHAR(50) UNIQUE NOT NULL
+);
+INSERT INTO body_types (body_type_name)
+VALUES ('sedan'), ('van'),
+       ('hatchback'), ('suv');
+
+CREATE TABLE transmissions
+(
+    transmission_id   SERIAL PRIMARY KEY,
+    transmission_type VARCHAR(50) UNIQUE NOT NULL
+);
+INSERT INTO transmissions (transmission_type)
+VALUES ('механическая'), ('автоматическая');
+
+CREATE TABLE engine_types
+(
+    engine_type_id SERIAL PRIMARY KEY,
+    engine_type    VARCHAR(50) UNIQUE NOT NULL
+);
+INSERT INTO engine_types (engine_type)
+VALUES ('дизельный'), ('бензиновый');
+
+CREATE TABLE car_status
+(
+    status_id   SERIAL PRIMARY KEY,
+    status_name VARCHAR(50) UNIQUE NOT NULL
+);
+INSERT INTO car_status (status_name)
+VALUES ('забронирован'), ('свободен');
+
+CREATE TABLE cars
+(
+    car_id          SERIAL PRIMARY KEY,
+    brand_id        INT REFERENCES brands (brand_id),
+    model_id        INT REFERENCES models (model_id),
+    body_type_id    INT REFERENCES body_types (body_type_id),
+    year            INT           NOT NULL,
+    engine_volume   DECIMAL(3, 1) NOT NULL,
+    transmission_id INT REFERENCES transmissions (transmission_id),
+    engine_type_id  INT REFERENCES engine_types (engine_type_id),
+    status_id       INT REFERENCES car_status (status_id)
+);
+-- DROP TABLE cars;
+INSERT INTO cars (brand_id, model_id, body_type_id, year, engine_volume, transmission_id, engine_type_id, status_id)
+VALUES
+    (1, 1, 4, 2020, 2.0, 2, 2, 2), -- BMW X5
+    (2, 2, 1, 2019, 1.8, 1, 1, 2), -- Toyota Corolla
+    (3, 3, 3, 2018, 2.0, 1, 2, 2), -- Volkswagen Passat
+    (4, 4, 1, 2021, 2.5, 2, 1, 1); -- Ford Focus (забронирован)
+
+
+CREATE TABLE request_status
+(
+    status_id   SERIAL PRIMARY KEY,
+    status_name VARCHAR(50) UNIQUE NOT NULL
+);
+INSERT INTO request_status (status_name)
+VALUES ('одобрена'), ('отклонена'),
+       ('завершена'), ('активна');
+
+CREATE TABLE rental_requests
+(
+    request_id  SERIAL PRIMARY KEY,
+    car_id      INT REFERENCES cars (car_id) ON DELETE CASCADE,
+    user_id     INT REFERENCES users (user_id) ON DELETE CASCADE,
+    start_date  DATE           NOT NULL,
+    end_date    DATE           NOT NULL,
+    total_price DECIMAL(10, 2) NOT NULL,
+    status_id   INT REFERENCES request_status (status_id)
+);
+-- DROP TABLE rental_requests;
+INSERT INTO rental_requests (car_id, user_id, start_date, end_date, total_price, status_id)
+VALUES
+    (1, 1, '2023-04-01', '2023-04-10', 500.00, 4), -- Активна
+    (2, 2, '2023-04-05', '2023-04-10', 300.00, 1), -- Одобрена
+    (3, 3, '2023-04-15', '2023-04-20', 600.00, 1); -- Отклонена
